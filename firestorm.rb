@@ -1,10 +1,14 @@
 require 'curses'
 include Curses
 
+require 'pry'
+
 def init_screen
   Curses.noecho # do not show typed keys
   Curses.init_screen
   Curses.stdscr.keypad(true) # enable arrow keys
+  Curses.start_color
+  Curses.init_pair(COLOR_YELLOW, COLOR_YELLOW, COLOR_RED)
   begin
     yield
   ensure
@@ -12,13 +16,38 @@ def init_screen
   end
 end
 
+class Cell
+  attr_accessor :char
+
+  def initialize(c = nil)
+    @char = c || ['H', 'A', 'L'].sample
+  end
+
+  def to_s
+    @char
+  end
+end
+
+$map = Array.new(24){ Array.new(60){ Cell.new } }
+
 def blow(dir)
   puts dir
 end
 
+def draw
+  (0..23).each do |y|
+    (0..59).each do |x|
+      setpos(y,x)
+      attron(color_pair(COLOR_YELLOW)|A_NORMAL) do
+        addstr($map[y][x].to_s)
+      end
+    end
+  end
+end
+
 init_screen do
   loop do
-    #display shit
+    draw
 
     case getch
     when Key::UP then blow 0
@@ -48,6 +77,9 @@ init_screen do
     when ?b then blow 5
     when ?h then blow 6
     when ?y then blow 7
+
+    when ?p then close_screen; binding.pry
+
     when ?q then break
     end
   end
