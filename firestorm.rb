@@ -14,6 +14,7 @@ def init_screen
   Curses.init_pair(COLOR_WHITE, COLOR_WHITE, COLOR_BLACK)
   Curses.init_pair(COLOR_BLUE, COLOR_BLACK, COLOR_BLUE)
   Curses.init_pair(COLOR_GREEN, COLOR_BLACK, COLOR_GREEN)
+  Curses.init_pair(COLOR_MAGENTA, COLOR_MAGENTA, COLOR_CYAN)
   begin
     yield
   ensure
@@ -67,7 +68,7 @@ class Cell
     @char || ' '
   end
 
-  def lit
+  def lit?
     @lit
   end
 
@@ -99,6 +100,28 @@ end
 class Grass < Wavey
   def color
     dead? ? COLOR_WHITE : COLOR_GREEN
+  end
+
+  def degrade
+    return if dead?
+    @char = nil
+  end
+end
+
+class Person
+  attr_accessor :alive, :y, :x
+  def initialize(x,y)
+    @alive = true
+    @x = x
+    @y = y
+  end
+  def dead?
+    !@alive
+  end
+  def tick
+    if $map[@y][@x].lit?
+      @alive = false
+    end
   end
 end
 
@@ -141,6 +164,7 @@ def make_map(rivers = 2, parks = 2, barrels = false)
 
     park_cells << [start_x, start_y]
 
+    tries = 0
     while park_cells.count < park_size
       begin
         x,y = park_cells.sample
@@ -149,6 +173,8 @@ def make_map(rivers = 2, parks = 2, barrels = false)
         else
           y += coin_flip ? 1 : -1
         end
+        tries += 1
+        break if tries > 1000
       end while park_cells.index([x,y]) or x < 0 or y < 0 or x >= 60 or y >= 24 or $map[y][x].class != Cell
       park_cells << [x, y]
     end
@@ -169,6 +195,22 @@ t.close
 
 $map = Array.new(24){ Array.new(60){ Cell.new } }
 make_map
+$celebs = []
+$lovers = []
+begin
+  y = rand(24)
+  x = rand(60)
+  if $map[y][x] != Water
+    $celebs << Person.new(x,y)
+  end
+end while $celebs.count < 3
+begin
+  y = rand(24)
+  x = rand(60)
+  if $map[y][x] != Water
+    $lovers << Person.new(x,y)
+  end
+end while $lovers.count < 3
 $wind_variance = 5
 
 def blow(dir)
@@ -182,7 +224,7 @@ def blow(dir)
   spread_to = []
   each_cell do |x,y|
     c = $map[y][x]
-    if c.lit
+    if c.lit?
       case dir
       when 0 then y -= 1
       when 1 then y -= 1; x += 1
@@ -201,6 +243,8 @@ def blow(dir)
     $map[y][x].light
   end
   $map[rand(24)][rand(60)].light
+  $celebs.each { |c| c.tick }
+  $lovers.each { |c| c.tick }
 end
 
 $show_fire = true
@@ -212,7 +256,7 @@ def draw
   each_cell do |x,y|
     c = $map[y][x]
     setpos(y,x)
-    if $show_fire and c.lit
+    if $show_fire and c.lit?
       attron(color_pair(COLOR_YELLOW)|A_NORMAL) do
         addstr($dante[$dante_position])
         $dante_position += 1
@@ -221,6 +265,24 @@ def draw
     else
       attron(color_pair(c.color)|A_NORMAL) do
         addstr(c.to_s)
+      end
+    end
+  end
+  if $show_fire
+    $celebs.each do |c|
+      unless c.dead?
+        setpos(c.y,c.x)
+        attron(color_pair(COLOR_MAGENTA)|A_NORMAL) do
+          addstr('*')
+        end
+      end
+    end
+    $lovers.each do |c|
+      unless c.dead?
+        setpos(c.y,c.x)
+        attron(color_pair(COLOR_MAGENTA)|A_NORMAL) do
+          addstr('@')
+        end
       end
     end
   end
