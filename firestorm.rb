@@ -114,8 +114,8 @@ def coin_flip
   rand(2).zero?
 end
 
-def make_map(river = true, parks = 2, barrels = false)
-  if river
+def make_map(rivers = 2, parks = 2, barrels = false)
+  rivers.times do
     start_x = last_x = rand(60)
     last_width = 3
     (0..23).each do |y|
