@@ -22,14 +22,9 @@ end
 
 class Cell
   attr_accessor :char
-  attr_accessor :lit
 
   def buildings
     ['H','A','R','N','T','#']
-  end
-
-  def grass
-    ['~','`',"'",',']
   end
 
   def degrade
@@ -68,18 +63,45 @@ class Cell
   end
 
   def to_s
-    if @char == :grass
-      return grass.sample
-    end
     @char || '.'
   end
 
+  def lit
+    @lit
+  end
+
+  def light
+    @lit = true unless dead?
+  end
+
   def color
-    return COLOR_GREEN if @char == :grass
-    return COLOR_BLUE if @char == :water
     COLOR_WHITE
   end
 end
+
+class Wavey < Cell
+  def to_s
+    return '.' if dead?
+    ['~','`',"'",','].sample
+  end
+end
+
+class Water < Wavey
+  def color
+    return COLOR_BLUE
+  end
+
+  def light
+  end
+end
+
+class Grass < Wavey
+  def color
+    dead? ? COLOR_WHITE : COLOR_GREEN
+  end
+end
+
+
 
 def each_cell
   (0..23).each do |y|
@@ -89,7 +111,7 @@ def each_cell
   end
 end
 
-$map = Array.new(24){ Array.new(60){ Cell.new } }
+$map = Array.new(24){ Array.new(60){ rand(2).zero? ? Cell.new : Grass.new } }
 $wind_variance = 5
 
 def blow(dir)
@@ -100,7 +122,7 @@ def blow(dir)
     dir += (rand(2).zero? ? 1 : -1)
   end
   dir %= 8
-  $map[rand(24)][rand(60)].lit = true
+  $map[rand(24)][rand(60)].light
   #puts dir
 end
 
