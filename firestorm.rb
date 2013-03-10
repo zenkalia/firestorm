@@ -118,17 +118,41 @@ def make_map(river = true, parks = 2, barrels = false)
     start_x = last_x = rand(60)
     last_width = 3
     (0..23).each do |y|
-      width = rand(3)+2
-      this_x = last_x + (coin_flip ? rand(last_width) : -1 * rand(width) )
-      while (this_x < 0 or this_x + width > 59)
+      begin
         width = rand(3)+2
-        this_x = last_x + rand(width) * (coin_flip ? 1 : -1)
-      end
+        this_x = last_x + (coin_flip ? rand(last_width) : -1 * rand(width) )
+      end while (this_x < 0 or this_x + width > 59)
       (this_x..this_x+width).each do |x|
         $map[y][x] = Water.new
       end
       last_x = this_x
       last_width = width
+    end
+  end
+
+  parks.times do
+    park_size = rand(20)+20
+    park_cells = []
+    begin
+      start_y = rand(24)
+      start_x = rand(60)
+    end while $map[start_y][start_x].class != Cell
+
+    park_cells << [start_x, start_y]
+
+    while park_cells.count < park_size
+      begin
+        x,y = park_cells.sample
+        if coin_flip
+          x += coin_flip ? 1 : -1
+        else
+          y += coin_flip ? 1 : -1
+        end
+      end while park_cells.index([x,y]) or x < 0 or y < 0 or x >= 60 or y >= 24 or $map[y][x].class != Cell
+      park_cells << [x, y]
+    end
+    park_cells.each do |x,y|
+      $map[y][x] = Grass.new
     end
   end
 end
