@@ -48,8 +48,6 @@ init_screen do
     when ?b then blow 5
     when ?h then blow 6
     when ?y then blow 7
-    when ?a then ttt.ai_move
-    when 10 then ttt.set # enter
     when ?q then break
     end
   end
