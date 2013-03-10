@@ -59,7 +59,7 @@ class Cell
 
   def tick
     @lit = false if dead?
-    degrade if @lit and rand(2).zero?
+    degrade if @lit and coin_flip
   end
 
   def to_s
@@ -101,8 +101,6 @@ class Grass < Wavey
   end
 end
 
-
-
 def each_cell
   (0..23).each do |y|
     (0..59).each do |x|
@@ -111,7 +109,32 @@ def each_cell
   end
 end
 
-$map = Array.new(24){ Array.new(60){ rand(2).zero? ? Cell.new : Grass.new } }
+def coin_flip
+  rand(2).zero?
+end
+
+def make_map(river = true, parks = 2, barrels = false)
+  if river
+    start_x = last_x = rand(60)
+    last_width = 3
+    (0..23).each do |y|
+      width = rand(3)+2
+      this_x = last_x + (coin_flip ? rand(last_width) : -1 * rand(width) )
+      while (this_x < 0 or this_x + width > 59)
+        width = rand(3)+2
+        this_x = last_x + rand(width) * (coin_flip ? 1 : -1)
+      end
+      (this_x..this_x+width).each do |x|
+        $map[y][x] = Water.new
+      end
+      last_x = this_x
+      last_width = width
+    end
+  end
+end
+
+$map = Array.new(24){ Array.new(60){ Cell.new } }
+make_map
 $wind_variance = 5
 
 def blow(dir)
@@ -119,7 +142,7 @@ def blow(dir)
     $map[y][x].tick
   end
   if rand(100) < $wind_variance
-    dir += (rand(2).zero? ? 1 : -1)
+    dir += (coin_flip ? 1 : -1)
   end
   dir %= 8
   $map[rand(24)][rand(60)].light
