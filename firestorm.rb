@@ -9,6 +9,10 @@ def init_screen
   Curses.stdscr.keypad(true) # enable arrow keys
   Curses.start_color
   Curses.init_pair(COLOR_YELLOW, COLOR_YELLOW, COLOR_RED)
+  Curses.init_pair(COLOR_RED, COLOR_RED, COLOR_YELLOW)
+  Curses.init_pair(COLOR_WHITE, COLOR_WHITE, COLOR_BLACK)
+  Curses.init_pair(COLOR_BLUE, COLOR_BLACK, COLOR_BLUE)
+  Curses.init_pair(COLOR_GREEN, COLOR_BLACK, COLOR_GREEN)
   begin
     yield
   ensure
@@ -21,7 +25,7 @@ class Cell
   attr_accessor :lit
 
   def buildings
-    ['H','A','L','R','N','T','#']
+    ['H','A','R','N','T','#']
   end
 
   def grass
@@ -40,6 +44,7 @@ class Cell
       '#' => ['H','K'],
       'h' => ['n','l','i'],
       'n' => ['i','v'],
+      'I' => ['i'],
       'l' => ['i'],
       '\\' => ['i','v'],
       'i' => [],
@@ -58,8 +63,8 @@ class Cell
   end
 
   def tick
-    @lit = false if @char.nil?
-    degrade
+    @lit = false if dead?
+    degrade if @lit and rand(2).zero?
   end
 
   def to_s
@@ -68,12 +73,35 @@ class Cell
     end
     @char || '.'
   end
+
+  def color
+    return COLOR_GREEN if @char == :grass
+    return COLOR_BLUE if @char == :water
+    COLOR_WHITE
+  end
+end
+
+def each_cell
+  (0..23).each do |y|
+    (0..59).each do |x|
+      yield(x,y)
+    end
+  end
 end
 
 $map = Array.new(24){ Array.new(60){ Cell.new } }
+$wind_variance = 5
 
 def blow(dir)
-  puts dir
+  each_cell do |x,y|
+    $map[y][x].tick
+  end
+  if rand(100) < $wind_variance
+    dir += (rand(2).zero? ? 1 : -1)
+  end
+  dir %= 8
+  $map[rand(24)][rand(60)].lit = true
+  #puts dir
 end
 
 $show_fire = true
@@ -82,11 +110,16 @@ def toggle_view
 end
 
 def draw
-  (0..23).each do |y|
-    (0..59).each do |x|
-      setpos(y,x)
+  each_cell do |x,y|
+    c = $map[y][x]
+    setpos(y,x)
+    if $show_fire and c.lit
       attron(color_pair(COLOR_YELLOW)|A_NORMAL) do
-        addstr($map[y][x].to_s)
+        addstr(c.to_s)
+      end
+    else
+      attron(color_pair(c.color)|A_NORMAL) do
+        addstr(c.to_s)
       end
     end
   end
