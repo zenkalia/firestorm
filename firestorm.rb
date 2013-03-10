@@ -18,13 +18,55 @@ end
 
 class Cell
   attr_accessor :char
+  attr_accessor :lit
+
+  def buildings
+    ['H','A','L','R','N','T','#']
+  end
+
+  def grass
+    ['~','`',"'",',']
+  end
+
+  def degrade
+    return if dead?
+    deg = {
+      'H' => ['h','n','l'],
+      'A' => ['I','h'],
+      'R' => ['H','h', 'K'],
+      'K' => ['h','n','l'],
+      'N' => ['l','\\'],
+      'T' => ['l'],
+      '#' => ['H','K'],
+      'h' => ['n','l','i'],
+      'n' => ['i','v'],
+      'l' => ['i'],
+      '\\' => ['i','v'],
+      'i' => [],
+      'v' => []
+    }
+    @char = deg[@char].sample
+  end
+
+  def dead?
+    @char.nil?
+  end
 
   def initialize(c = nil)
-    @char = c || ['H', 'A', 'L'].sample
+    @char = c || buildings.sample
+    @lit = false
+  end
+
+  def tick
+    @lit = false if @char.nil?
+    degrade
   end
 
   def to_s
-    @char
+    if @char == :grass
+      return grass.sample
+    end
+    @char || '.'
   end
 end
 
@@ -32,6 +74,11 @@ $map = Array.new(24){ Array.new(60){ Cell.new } }
 
 def blow(dir)
   puts dir
+end
+
+$show_fire = true
+def toggle_view
+  $show_fire = !$show_fire
 end
 
 def draw
@@ -77,6 +124,8 @@ init_screen do
     when ?b then blow 5
     when ?h then blow 6
     when ?y then blow 7
+
+    when ' ' then toggle_view
 
     when ?p then close_screen; binding.pry
 
