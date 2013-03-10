@@ -1,4 +1,5 @@
 require 'curses'
+require 'yaml'
 include Curses
 
 require 'pry'
@@ -157,6 +158,15 @@ def make_map(river = true, parks = 2, barrels = false)
   end
 end
 
+t = File.open('./data/dante.txt', 'r')
+$dante = t.read
+$dante.gsub!(/\s+/, '')
+$dante_position = rand($dante.length)
+t.close
+t = File.open('./data/names.yml','r')
+$names = YAML::load(t)
+t.close
+
 $map = Array.new(24){ Array.new(60){ Cell.new } }
 make_map
 $wind_variance = 5
@@ -184,7 +194,9 @@ def draw
     setpos(y,x)
     if $show_fire and c.lit
       attron(color_pair(COLOR_YELLOW)|A_NORMAL) do
-        addstr(c.to_s)
+        addstr($dante[$dante_position])
+        $dante_position += 1
+        $dante_position %= $dante.length
       end
     else
       attron(color_pair(c.color)|A_NORMAL) do
