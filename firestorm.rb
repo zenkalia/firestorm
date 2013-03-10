@@ -64,7 +64,7 @@ class Cell
   end
 
   def to_s
-    @char || '.'
+    @char || ' '
   end
 
   def lit
@@ -82,7 +82,7 @@ end
 
 class Wavey < Cell
   def to_s
-    return '.' if dead?
+    return ' ' if dead?
     ['~','`',"'",','].sample
   end
 end
@@ -160,7 +160,7 @@ end
 
 t = File.open('./data/dante.txt', 'r')
 $dante = t.read
-$dante.gsub!(/\s+/, '')
+$dante.gsub!(/\s+/, '-')
 $dante_position = rand($dante.length)
 t.close
 t = File.open('./data/names.yml','r')
@@ -179,8 +179,28 @@ def blow(dir)
     dir += (coin_flip ? 1 : -1)
   end
   dir %= 8
+  spread_to = []
+  each_cell do |x,y|
+    c = $map[y][x]
+    if c.lit
+      case dir
+      when 0 then y -= 1
+      when 1 then y -= 1; x += 1
+      when 2 then         x += 1
+      when 3 then y += 1; x += 1
+      when 4 then y += 1
+      when 5 then y += 1; x -= 1
+      when 6 then         x -= 1
+      when 7 then y -= 1; x -= 1
+      end
+      spread_to << [x,y] if y >= 0 and x >= 0 and y < 24 and x < 60
+    end
+  end
+
+  spread_to.each do |x,y|
+    $map[y][x].light
+  end
   $map[rand(24)][rand(60)].light
-  #puts dir
 end
 
 $show_fire = true
