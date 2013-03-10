@@ -20,16 +20,16 @@ init_screen do
   loop do
     #display shit
 
-    case Curses.getch
-    when Curses::Key::UP then blow 0
-    when Curses::Key::PPAGE then blow 1
-    when Curses::Key::RIGHT then blow 2
-    when Curses::Key::NPAGE then blow 3
-    when Curses::Key::DOWN then blow 4
-    when Curses::Key::END then blow 5
-    when Curses::Key::LEFT then blow 6
-    when Curses::Key::HOME then blow 7
-    when Curses::Key::LL then blow 7
+    case getch
+    when Key::UP then blow 0
+    when Key::PPAGE then blow 1
+    when Key::RIGHT then blow 2
+    when Key::NPAGE then blow 3
+    when Key::DOWN then blow 4
+    when Key::END then blow 5
+    when Key::LEFT then blow 6
+    when Key::HOME then blow 7
+    when Key::LL then blow 7
 
     when ?8 then blow 0
     when ?9 then blow 1
