@@ -201,14 +201,14 @@ $lovers = []
 begin
   y = rand(24)
   x = rand(60)
-  if $map[y][x].class != Water
+  if $map[y][x].class != Water and $celebs.select{|a| a.x == x and a.y == y}.count == 0
     $celebs << Person.new(x,y)
   end
 end while $celebs.count < 3
 begin
   y = rand(24)
   x = rand(60)
-  if $map[y][x].class != Water
+  if $map[y][x].class != Water and $lovers.select{|a| a.x == x and a.y == y}.count == 0 and $celebs.select{|a| a.x == x and a.y == y}.count == 0
     $lovers << Person.new(x,y)
   end
 end while $lovers.count < 3
