@@ -9,6 +9,7 @@ def init_screen
   Curses.init_screen
   Curses.stdscr.keypad(true) # enable arrow keys
   Curses.start_color
+  Curses.curs_set(0)
   Curses.init_pair(COLOR_YELLOW, COLOR_YELLOW, COLOR_RED)
   Curses.init_pair(COLOR_RED, COLOR_RED, COLOR_YELLOW)
   Curses.init_pair(COLOR_WHITE, COLOR_WHITE, COLOR_BLACK)
@@ -200,18 +201,19 @@ $lovers = []
 begin
   y = rand(24)
   x = rand(60)
-  if $map[y][x] != Water
+  if $map[y][x].class != Water
     $celebs << Person.new(x,y)
   end
 end while $celebs.count < 3
 begin
   y = rand(24)
   x = rand(60)
-  if $map[y][x] != Water
+  if $map[y][x].class != Water
     $lovers << Person.new(x,y)
   end
 end while $lovers.count < 3
 $wind_variance = 5
+$turns = 40
 
 def blow(dir)
   each_cell do |x,y|
@@ -245,6 +247,7 @@ def blow(dir)
   $map[rand(24)][rand(60)].light
   $celebs.each { |c| c.tick }
   $lovers.each { |c| c.tick }
+  $turns -= 1
 end
 
 $show_fire = true
@@ -288,9 +291,44 @@ def draw
   end
 end
 
+def draw_sidebar
+  setpos(1,63)
+  addstr('Firestorm City')
+  setpos(2,63)
+  addstr('==============')
+
+  draw_box(7, 18, 4, 61)
+  setpos(5,62)
+  addstr("Things remaining:")
+  setpos(7, 66)
+  addstr("Turns: #{$turns}")
+  setpos(8, 64)
+  addstr("Loved ones: #{$lovers.select{|a|a.alive}.count}")
+  setpos(9, 67)
+  addstr("VIPs: #{$celebs.select{|a|a.alive}.count}")
+  setpos(10, 63)
+  addstr("Innocents: TONS")
+end
+
+def draw_box(height, width, top, left)
+  (top..top+height).each do |y|
+    setpos(y,left)
+    addstr('|')
+    setpos(y,left+width)
+    addstr('|')
+  end
+  (left..left+width).each do |x|
+    setpos(top,x)
+    addstr('-')
+    setpos(top+height,x)
+    addstr('-')
+  end
+end
+
 init_screen do
   loop do
     draw
+    draw_sidebar
 
     case getch
     when Key::UP then blow 0
