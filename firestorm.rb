@@ -219,14 +219,15 @@ def blow(dir)
   each_cell do |x,y|
     $map[y][x].tick
   end
-  if rand(100) < $wind_variance
-    dir += (coin_flip ? 1 : -1)
-  end
-  dir %= 8
   spread_to = []
   each_cell do |x,y|
     c = $map[y][x]
     if c.lit?
+      copy_dir = dir
+      if rand(100) < $wind_variance
+        copy_dir += (coin_flip ? 1 : -1)
+      end
+      copy_dir %= 8
       case dir
       when 0 then y -= 1
       when 1 then y -= 1; x += 1
@@ -300,6 +301,8 @@ def draw_sidebar
   draw_box(7, 18, 4, 61)
   setpos(5,62)
   addstr("Things remaining:")
+  setpos(7, 66)
+  addstr("Turns:   ")
   setpos(7, 66)
   addstr("Turns: #{$turns}")
   setpos(8, 64)
