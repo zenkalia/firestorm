@@ -143,9 +143,12 @@ def make_map(rivers = 2, parks = 2, barrels = false)
     start_x = last_x = rand(60)
     last_width = 3
     (0..23).each do |y|
+      tries = 0
       begin
         width = rand(3)+2
         this_x = last_x + (coin_flip ? rand(last_width) : -1 * rand(width) )
+        tries += 1
+        break if tries > 1000
       end while (this_x < 0 or this_x + width > 59)
       (this_x..this_x+width).each do |x|
         $map[y][x] = Water.new
@@ -311,6 +314,30 @@ def draw_sidebar
   addstr("VIPs: #{$celebs.select{|a|a.alive}.count}")
   setpos(10, 63)
   addstr("Innocents: TONS")
+
+  draw_box(8,18,11, 61)
+  setpos(12,66)
+  addstr('Controls:')
+  setpos(13,62)
+  addstr('Swap view: Space')
+  setpos(14,62)
+  addstr('Wind:')
+  setpos(15,62)
+  addstr('Arrows, PgUp,')
+  setpos(16,62)
+  addstr('PgDown, Home, End')
+  setpos(17,66)
+  addstr('-OR-')
+  setpos(18,62)
+  addstr('hjklyubn')
+
+  draw_box(4,18,19,61)
+  setpos(20,62)
+  addstr('Score:')
+  setpos(21,64)
+  addstr('1000000')
+  setpos(22,62)
+  addstr("Level: #{$level}")
 end
 
 def draw_box(height, width, top, left)
@@ -329,6 +356,7 @@ def draw_box(height, width, top, left)
 end
 
 init_screen do
+  blow 0
   loop do
     draw
     draw_sidebar
