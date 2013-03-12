@@ -434,6 +434,7 @@ init_screen do
     when ?y then blow 7
 
     when ' ' then toggle_view
+    when 32 then toggle_view
 
     when ?p then close_screen; binding.pry
 
