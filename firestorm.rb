@@ -4,6 +4,8 @@ require 'curses'
 require 'yaml'
 include Curses
 
+Dir.chdir File.dirname(__FILE__)
+
 require 'pry' unless ARGV.empty?
 
 class Array
