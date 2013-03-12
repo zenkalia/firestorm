@@ -119,10 +119,16 @@ end
 
 class Person
   attr_accessor :alive, :y, :x
+
+  @@all = []
+  def self.all
+    @@all
+  end
   def initialize(x,y)
     @alive = true
     @x = x
     @y = y
+    @@all << self
   end
   def dead?
     !@alive
@@ -131,6 +137,9 @@ class Person
     if $map[@y][@x].lit?
       @alive = false
     end
+  end
+  def self.destroy_all
+    @@all = Array.new
   end
 end
 
@@ -212,14 +221,14 @@ $lovers = []
 begin
   y = rand(24)
   x = rand(60)
-  if $map[y][x].class != Water and $celebs.select{|a| a.x == x and a.y == y}.count == 0
+  if $map[y][x].class != Water and Person.all.select{|a| a.x == x and a.y == y}.count == 0
     $celebs << Person.new(x,y)
   end
 end while $celebs.count < 3
 begin
   y = rand(24)
   x = rand(60)
-  if $map[y][x].class != Water and $lovers.select{|a| a.x == x and a.y == y}.count == 0 and $celebs.select{|a| a.x == x and a.y == y}.count == 0
+  if $map[y][x].class != Water and Person.all.select{|a| a.x == x and a.y == y}.count == 0
     $lovers << Person.new(x,y)
   end
 end while $lovers.count < 3
