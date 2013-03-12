@@ -232,7 +232,7 @@ begin
     $lovers << Person.new(x,y)
   end
 end while $lovers.count < 3
-$wind_variance = 5
+$wind_variance = 7
 $turns = 40
 
 def blow(dir)
@@ -265,6 +265,10 @@ def blow(dir)
   spread_to.each do |x,y|
     $map[y][x].light
   end
+  begin
+    x = rand(60)
+    y = rand(24)
+  end until Person.all.select{|a| a.x == x and a.y == y}.count == 0
   $map[rand(24)][rand(60)].light
   $celebs.each { |c| c.tick }
   $lovers.each { |c| c.tick }
