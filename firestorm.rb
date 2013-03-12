@@ -1,8 +1,16 @@
+#!/usr/bin/ruby
+
 require 'curses'
 require 'yaml'
 include Curses
 
-require 'pry'
+require 'pry' unless ARGV.empty?
+
+class Array
+  def sample
+    self[rand(self.count)]
+  end
+end
 
 def init_screen
   Curses.noecho # do not show typed keys
@@ -265,7 +273,7 @@ def draw
     setpos(y,x)
     if $show_fire and c.lit?
       attron(color_pair(COLOR_YELLOW)|A_NORMAL) do
-        addstr($dante[$dante_position])
+        addstr($dante[$dante_position,1].to_s)
         $dante_position += 1
         $dante_position %= $dante.length
       end
