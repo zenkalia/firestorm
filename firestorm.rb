@@ -155,7 +155,7 @@ def coin_flip
   rand(2).zero?
 end
 
-def make_map(rivers = 2, parks = 2, barrels = false)
+def make_map(rivers = 2, parks = 2, river_barrels = false, barrels = 0, towers = 0)
   rivers.times do
     start_x = last_x = rand(60)
     last_width = 3
@@ -213,27 +213,10 @@ t.close
 t = File.open('./data/names.yml','r')
 $names = YAML::load(t)
 t.close
-
-$map = Array.new(24){ Array.new(60){ Cell.new } }
-make_map
-$celebs = []
-$lovers = []
-begin
-  y = rand(24)
-  x = rand(60)
-  if $map[y][x].class != Water and Person.all.select{|a| a.x == x and a.y == y}.count == 0
-    $celebs << Person.new(x,y)
-  end
-end while $celebs.count < 3
-begin
-  y = rand(24)
-  x = rand(60)
-  if $map[y][x].class != Water and Person.all.select{|a| a.x == x and a.y == y}.count == 0
-    $lovers << Person.new(x,y)
-  end
-end while $lovers.count < 3
-$wind_variance = 7
-$turns = 40
+t = File.open('./data/levels.yml','r')
+$levels = YAML::load(t)
+t.close
+$level = 0
 
 def blow(dir)
   each_cell do |x,y|
@@ -358,7 +341,7 @@ def draw_sidebar
   setpos(21,64)
   addstr('1000000')
   setpos(22,62)
-  addstr("Level: #{$level}")
+  addstr("Level: #{($level+1).to_s}")
 end
 
 def draw_box(height, width, top, left)
@@ -376,9 +359,48 @@ def draw_box(height, width, top, left)
   end
 end
 
-init_screen do
+def set_up_level
+  $map = Array.new(24){ Array.new(60){ Cell.new } }
+  l = $levels[$level]
+  make_map(l['rivers'], l['parks'], l['river_barrels'], l['barrels'], l['towers'])
+  Person.destroy_all
+  $celebs = []
+  $lovers = []
+  begin
+    y = rand(24)
+    x = rand(60)
+    if $map[y][x].class != Water and Person.all.select{|a| a.x == x and a.y == y}.count == 0
+      $celebs << Person.new(x,y)
+    end
+  end while $celebs.count < 3
+  begin
+    y = rand(24)
+    x = rand(60)
+    if $map[y][x].class != Water and Person.all.select{|a| a.x == x and a.y == y}.count == 0
+      $lovers << Person.new(x,y)
+    end
+  end while $lovers.count < 3
+  $wind_variance = l['wind']
+  $turns = 40
   blow 0
+end
+
+set_up_level
+init_screen do
   loop do
+    if Person.all.select{|a|a.alive}.count == 0
+      #game_over
+      break
+    end
+    if $turns == 0
+      $level += 1
+      #show_points
+      if $level == $levels.count
+        #show_ending
+        break
+      end
+      set_up_level
+    end
     draw
     draw_sidebar
 
