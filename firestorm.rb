@@ -253,8 +253,8 @@ def blow(dir)
   begin
     x = rand(60)
     y = rand(24)
-  end until Person.all.select{|a| a.x == x and a.y == y}.count == 0
-  $map[rand(24)][rand(60)].light
+  end until Person.all.select{|a| a.x == x and a.y == y}.count == 0 and $map[y][x].class != Water
+  $map[y][x].light
   $celebs.each { |c| c.tick }
   $lovers.each { |c| c.tick }
   $turns -= 1
