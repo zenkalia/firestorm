@@ -21,7 +21,8 @@ def init_screen
   Curses.start_color
   Curses.curs_set(0)
   Curses.init_pair(COLOR_YELLOW, COLOR_YELLOW, COLOR_RED)
-  Curses.init_pair(COLOR_RED, COLOR_RED, COLOR_YELLOW)
+  Curses.init_pair(COLOR_RED, COLOR_RED, COLOR_BLACK)
+  Curses.init_pair(COLOR_CYAN, COLOR_BLUE, COLOR_BLACK)
   Curses.init_pair(COLOR_WHITE, COLOR_WHITE, COLOR_BLACK)
   Curses.init_pair(COLOR_BLUE, COLOR_BLACK, COLOR_BLUE)
   Curses.init_pair(COLOR_GREEN, COLOR_BLACK, COLOR_GREEN)
@@ -92,6 +93,30 @@ class Cell
   end
 end
 
+class Barrel < Cell
+  def initialize(x,y)
+    super nil
+    @x = x
+    @y = y
+  end
+  def color
+    COLOR_RED
+  end
+  def to_s
+    return ' ' if dead?
+    'O'
+  end
+  def degrade
+    return if dead?
+    d = 2 + rand(3) + rand(2)
+    each_cell do |x,y|
+      $map[y][x].light if man_distance(@x,@y,x,y) < d.to_f
+    end
+
+    @char = nil
+  end
+end
+
 class Wavey < Cell
   def to_s
     return ' ' if dead?
@@ -101,7 +126,7 @@ end
 
 class Water < Wavey
   def color
-    return COLOR_BLUE
+    COLOR_BLUE
   end
 
   def light
@@ -157,6 +182,12 @@ def coin_flip
   rand(2).zero?
 end
 
+def man_distance(x1,y1,x2,y2)
+  dx = (x2-x1).abs
+  dy = (y2-y1).abs
+  [dx,dy].min * 1.707 + (dx-dy).abs
+end
+
 def make_map(rivers = 2, parks = 2, river_barrels = false, barrels = 0, towers = 0)
   rivers.times do
     start_x = last_x = rand(60)
@@ -204,6 +235,14 @@ def make_map(rivers = 2, parks = 2, river_barrels = false, barrels = 0, towers =
     park_cells.each do |x,y|
       $map[y][x] = Grass.new
     end
+  end
+
+  barrels.times do
+    begin
+      x = rand(60)
+      y = rand(24)
+    end until $map[y][x].class == Cell
+    $map[y][x] = Barrel.new(x,y)
   end
 end
 
