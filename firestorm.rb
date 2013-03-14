@@ -84,8 +84,12 @@ class Cell
     @lit
   end
 
-  def light
+  def light!
     @lit = true unless dead?
+  end
+
+  def douse!
+    @lit = false
   end
 
   def color
@@ -108,9 +112,24 @@ class Barrel < Cell
   end
   def degrade
     return if dead?
-    d = 2 + rand(3) + rand(2)
+    d = 2 + rand(4) + rand(2)
     each_cell do |x,y|
-      $map[y][x].light if man_distance(@x,@y,x,y) < d.to_f
+      $map[y][x].light! if man_distance(@x,@y,x,y) < d.to_f
+    end
+
+    @char = nil
+  end
+end
+
+class WaterBarrel < Barrel
+  def color
+    COLOR_CYAN
+  end
+  def degrade
+    return if dead?
+    d = 2 + rand(5) + rand(2)
+    each_cell do |x,y|
+      $map[y][x].douse! if man_distance(@x,@y,x,y) < d.to_f
     end
 
     @char = nil
@@ -129,7 +148,7 @@ class Water < Wavey
     COLOR_BLUE
   end
 
-  def light
+  def light!
   end
 end
 
@@ -244,6 +263,13 @@ def make_map(rivers = 2, parks = 2, river_barrels = false, barrels = 0, towers =
     end until $map[y][x].class == Cell
     $map[y][x] = Barrel.new(x,y)
   end
+  towers.times do
+    begin
+      x = rand(60)
+      y = rand(24)
+    end until $map[y][x].class == Cell
+    $map[y][x] = WaterBarrel.new(x,y)
+  end
 end
 
 t = File.open('./data/dante.txt', 'r')
@@ -287,13 +313,13 @@ def blow(dir)
   end
 
   spread_to.each do |x,y|
-    $map[y][x].light
+    $map[y][x].light!
   end
   begin
     x = rand(60)
     y = rand(24)
   end until Person.all.select{|a| a.x == x and a.y == y}.count == 0 and $map[y][x].class != Water
-  $map[y][x].light
+  $map[y][x].light!
   $celebs.each { |c| c.tick }
   $lovers.each { |c| c.tick }
   $turns -= 1
