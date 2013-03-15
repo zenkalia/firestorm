@@ -59,6 +59,7 @@ class Cell
       'i' => [],
       'v' => []
     }
+    $innocents += 20 + rand(50)
     @char = deg[@char].sample
   end
 
@@ -280,6 +281,9 @@ t.close
 t = File.open('./data/names.yml','r')
 $names = YAML::load(t)
 t.close
+t = File.open('./data/people.yml','r')
+$people = YAML::load(t)
+t.close
 t = File.open('./data/levels.yml','r')
 $levels = YAML::load(t)
 t.close
@@ -397,6 +401,85 @@ def draw_ending
   addstr('--Press any key--')
 end
 
+def draw_scoring
+  clear
+  draw_box(23, 79, 0, 0)
+  setpos(1,34)
+  addstr('Firestorm City')
+  setpos(2,34)
+  addstr('==============')
+
+  row = 4
+  if Person.all.select{|a| a.dead?}.count == 0
+    setpos(4,20)
+    addstr('No one important died!')
+  else
+    setpos(3,1)
+    addstr('You killed:')
+    $celebs.select{|a|a.dead?}.count.times do
+      setpos(row,3)
+      attron(color_pair(COLOR_MAGENTA)) do
+        addstr('*')
+      end
+      addstr(": #{$people['celebs'].sample}")
+      row += 1
+    end
+    $lovers.select{|a|a.dead?}.count.times do
+      setpos(row,3)
+      attron(color_pair(COLOR_MAGENTA)) do
+        addstr('@')
+      end
+      gender = $people['lovers'].keys.sample
+      addstr(": #{$people['lovers'][gender].sample}, #{$names[gender].sample}")
+      row += 1
+    end
+  end
+
+  row += 1
+  setpos(row,1)
+  addstr('Score:')
+  row += 1
+  setpos(row,1)
+  addstr("Innocents: #{$innocents}")
+  $score += $innocents
+  if $lovers.select{|a|a.dead?}.count == 0 and $celebs.select{|a|a.dead?}.count == 3
+    row += 1
+    setpos(row,1)
+    addstr('Sensitive bonus: 50000')
+    $score += 50000
+  end
+  if $celebs.select{|a|a.dead?}.count == 0 and $lovers.select{|a|a.dead?}.count == 3
+    row += 1
+    setpos(row,1)
+    addstr('Utilitarian bonus: 60000')
+    $score += 60000
+  end
+  if $celebs.select{|a|a.dead?}.count == 0 and $lovers.select{|a|a.dead?}.count == 0
+    row += 1
+    setpos(row,1)
+    addstr('Superman bonus: 100000')
+    $score += 100000
+  end
+  if $celebs.select{|a|a.dead?}.count == 2 and $lovers.select{|a|a.dead?}.count == 3
+    row += 1
+    setpos(row,1)
+    addstr('Highlander bonus: 30000')
+    $score += 30000
+  end
+  if $celebs.select{|a|a.dead?}.count == 3 and $lovers.select{|a|a.dead?}.count == 2
+    row += 1
+    setpos(row,1)
+    addstr('The loneliest number bonus: 40000')
+    $score += 40000
+  end
+
+  setpos(20,11)
+  addstr("Score: #{$score}")
+
+  setpos(22,33)
+  addstr('--Press any key--')
+end
+
 def draw
   each_cell do |x,y|
     c = $map[y][x]
@@ -473,7 +556,7 @@ def draw_sidebar
   setpos(20,62)
   addstr('Score:')
   setpos(21,64)
-  addstr('1000000')
+  addstr($score.to_s)
   setpos(22,62)
   addstr("Level: #{($level+1).to_s}")
 end
@@ -516,6 +599,7 @@ def set_up_level
   end while $lovers.count < 3
   $wind_variance = l['wind']
   $turns = 40
+  $innocents = 0
   blow 0
 end
 
@@ -531,8 +615,9 @@ init_screen do
       break
     end
     if $turns == 0
+      draw_scoring
+      getch
       $level += 1
-      #show_points
       if $level == $levels.count
         draw_ending
         getch
