@@ -330,6 +330,35 @@ def toggle_view
   $show_fire = !$show_fire
 end
 
+def draw_intro
+  draw_box(12, 60, 6, 10)
+  setpos(7,34)
+  addstr('Firestorm City')
+  setpos(8,34)
+  addstr('==============')
+
+  setpos(9,11)
+  addstr('Endsville is burning...  and you control the wind!')
+
+  setpos(11,11)
+  attron(color_pair(COLOR_MAGENTA)|A_NORMAL) do
+    addstr('*')
+  end
+  addstr(' <- This is a person important to society')
+
+  setpos(12,11)
+  attron(color_pair(COLOR_MAGENTA)|A_NORMAL) do
+    addstr('@')
+  end
+  addstr(' <- This is a person important to you')
+
+  setpos(15,11)
+  addstr("If everyone dies, you lose.  That's it!")
+
+  setpos(17,29)
+  addstr('--Press any key to start--')
+end
+
 def draw
   each_cell do |x,y|
     c = $map[y][x]
@@ -454,6 +483,9 @@ end
 
 set_up_level
 init_screen do
+  draw_intro
+  getch
+  clear
   loop do
     if Person.all.select{|a|a.alive}.count == 0
       #game_over
