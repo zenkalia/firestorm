@@ -379,6 +379,24 @@ def draw_game_over
   addstr('--Press any key--')
 end
 
+def draw_ending
+  clear
+  draw_box(12, 60, 6, 10)
+  setpos(7,34)
+  addstr('Firestorm City')
+  setpos(8,34)
+  addstr('==============')
+
+  setpos(10,11)
+  addstr('You won.  I hope you liked it. <3')
+
+  setpos(12,11)
+  addstr("Score: #{$score}")
+
+  setpos(17,33)
+  addstr('--Press any key--')
+end
+
 def draw
   each_cell do |x,y|
     c = $map[y][x]
@@ -516,7 +534,8 @@ init_screen do
       $level += 1
       #show_points
       if $level == $levels.count
-        #show_ending
+        draw_ending
+        getch
         break
       end
       set_up_level
