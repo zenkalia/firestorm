@@ -284,6 +284,7 @@ t = File.open('./data/levels.yml','r')
 $levels = YAML::load(t)
 t.close
 $level = 0
+$score = 0
 
 def blow(dir)
   each_cell do |x,y|
@@ -331,6 +332,7 @@ def toggle_view
 end
 
 def draw_intro
+  clear
   draw_box(12, 60, 6, 10)
   setpos(7,34)
   addstr('Firestorm City')
@@ -355,8 +357,26 @@ def draw_intro
   setpos(15,11)
   addstr("If everyone dies, you lose.  That's it!")
 
-  setpos(17,29)
-  addstr('--Press any key to start--')
+  setpos(17,33)
+  addstr('--Press any key--')
+end
+
+def draw_game_over
+  clear
+  draw_box(12, 60, 6, 10)
+  setpos(7,34)
+  addstr('Firestorm City')
+  setpos(8,34)
+  addstr('==============')
+
+  setpos(10,11)
+  addstr('You blew it.')
+
+  setpos(12,11)
+  addstr("Score: #{$score}")
+
+  setpos(17,33)
+  addstr('--Press any key--')
 end
 
 def draw
@@ -488,7 +508,8 @@ init_screen do
   clear
   loop do
     if Person.all.select{|a|a.alive}.count == 0
-      #game_over
+      draw_game_over
+      getch
       break
     end
     if $turns == 0
