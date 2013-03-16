@@ -26,7 +26,7 @@ def init_screen
   Curses.init_pair(COLOR_WHITE, COLOR_WHITE, COLOR_BLACK)
   Curses.init_pair(COLOR_BLUE, COLOR_BLACK, COLOR_BLUE)
   Curses.init_pair(COLOR_GREEN, COLOR_BLACK, COLOR_GREEN)
-  Curses.init_pair(COLOR_MAGENTA, COLOR_MAGENTA, COLOR_CYAN)
+  Curses.init_pair(COLOR_MAGENTA, COLOR_YELLOW, COLOR_CYAN)
   begin
     yield
   ensure
@@ -59,7 +59,7 @@ class Cell
       'i' => [],
       'v' => []
     }
-    $innocents += 20 + rand(50)
+    $innocents += 10 + rand(10)
     @char = deg[@char].sample
   end
 
@@ -208,7 +208,7 @@ def man_distance(x1,y1,x2,y2)
   [dx,dy].min * 1.707 + (dx-dy).abs
 end
 
-def make_map(rivers = 2, parks = 2, river_barrels = false, barrels = 0, towers = 0)
+def make_map(rivers = 2, parks = 2, barrels = 0, towers = 0)
   rivers.times do
     start_x = last_x = rand(60)
     last_width = 3
@@ -253,7 +253,7 @@ def make_map(rivers = 2, parks = 2, river_barrels = false, barrels = 0, towers =
       park_cells << [x, y]
     end
     park_cells.each do |x,y|
-      $map[y][x] = Grass.new
+      $map[y][x] = Grass.new if $map[y]
     end
   end
 
@@ -337,7 +337,7 @@ end
 
 def draw_intro
   clear
-  draw_box(12, 60, 6, 10)
+  draw_box(13, 60, 6, 10)
   setpos(7,34)
   addstr('Firestorm City')
   setpos(8,34)
@@ -358,11 +358,23 @@ def draw_intro
   end
   addstr(' <- This is a person important to you')
 
-  setpos(15,11)
+  setpos(13,11)
+  attron(color_pair(COLOR_RED)|A_NORMAL) do
+    addstr('O')
+  end
+  addstr(' <- This is a barrel that creates fires')
+
+  setpos(14,11)
+  attron(color_pair(COLOR_CYAN)|A_NORMAL) do
+    addstr('O')
+  end
+  addstr(' <- This is a barrel that douses fires')
+
+  setpos(16,11)
   addstr("If everyone dies, you lose.  That's it!")
 
-  setpos(17,33)
-  addstr('--Press any key--')
+  setpos(18,33)
+  addstr('--Press space--')
 end
 
 def draw_game_over
@@ -380,7 +392,7 @@ def draw_game_over
   addstr("Score: #{$score}")
 
   setpos(17,33)
-  addstr('--Press any key--')
+  addstr('--Press space--')
 end
 
 def draw_ending
@@ -398,7 +410,7 @@ def draw_ending
   addstr("Score: #{$score}")
 
   setpos(17,33)
-  addstr('--Press any key--')
+  addstr('--Press space--')
 end
 
 def draw_scoring
@@ -477,7 +489,7 @@ def draw_scoring
   addstr("Score: #{$score}")
 
   setpos(22,33)
-  addstr('--Press any key--')
+  addstr('--Press space--')
 end
 
 def draw
@@ -579,7 +591,7 @@ end
 def set_up_level
   $map = Array.new(24){ Array.new(60){ Cell.new } }
   l = $levels[$level]
-  make_map(l['rivers'], l['parks'], l['river_barrels'], l['barrels'], l['towers'])
+  make_map(l['rivers'], l['parks'], l['barrels'], l['towers'])
   Person.destroy_all
   $celebs = []
   $lovers = []
@@ -603,24 +615,30 @@ def set_up_level
   blow 0
 end
 
+def wait_for_space
+  begin
+    a = getch
+  end until a == ' ' or a == 32
+end
+
 set_up_level
 init_screen do
   draw_intro
-  getch
+  wait_for_space
   clear
   loop do
     if Person.all.select{|a|a.alive}.count == 0
       draw_game_over
-      getch
+      wait_for_space
       break
     end
     if $turns == 0
       draw_scoring
-      getch
+      wait_for_space
       $level += 1
       if $level == $levels.count
         draw_ending
-        getch
+        wait_for_space
         break
       end
       set_up_level
