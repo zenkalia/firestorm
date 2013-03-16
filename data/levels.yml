@@ -9,88 +9,88 @@
   parks: 1
   barrels: 0
   towers: 0
-  wind: 8
+  wind: 7
 -
-  rivers: 1
+  rivers: 2
   parks: 3
   barrels: 0
   towers: 0
+  wind: 8
+-
+  rivers: 0
+  parks: 3
+  barrels: 0
+  towers: 9
+  wind: 8
+-
+  rivers: 2
+  parks: 3
+  barrels: 4
+  towers: 2
   wind: 9
+-
+  rivers: 0
+  parks: 9
+  barrels: 3
+  towers: 0
+  wind: 9
+-
+  rivers: 1
+  parks: 1
+  barrels: 10
+  towers: 10
+  wind: 10
 -
   rivers: 0
   parks: 3
   barrels: 0
   towers: 0
-  wind: 10
+  wind: 11
 -
   rivers: 3
   parks: 3
-  barrels: 0
-  towers: 0
-  wind: 7
+  barrels: 10
+  towers: 2
+  wind: 12
 -
   rivers: 2
   parks: 1
-  barrels: 0
-  towers: 0
-  wind: 8
+  barrels: 10
+  towers: 5
+  wind: 13
 -
   rivers: 1
   parks: 3
-  barrels: 0
-  towers: 0
-  wind: 9
+  barrels: 8
+  towers: 2
+  wind: 14
 -
   rivers: 0
-  parks: 3
-  barrels: 0
-  towers: 0
-  wind: 10
--
-  rivers: 3
-  parks: 3
-  barrels: 0
-  towers: 0
-  wind: 7
--
-  rivers: 2
-  parks: 1
-  barrels: 0
-  towers: 0
-  wind: 8
--
-  rivers: 1
-  parks: 3
-  barrels: 0
-  towers: 0
-  wind: 9
+  parks: 0
+  barrels: 5
+  towers: 9
+  wind: 45
 -
   rivers: 0
-  parks: 3
-  barrels: 0
-  towers: 0
-  wind: 10
--
-  rivers: 3
-  parks: 3
-  barrels: 0
-  towers: 0
-  wind: 7
--
-  rivers: 2
-  parks: 1
-  barrels: 0
-  towers: 0
-  wind: 8
+  parks: 6
+  barrels: 10
+  towers: 10
+  wind: 16
 -
   rivers: 1
-  parks: 3
-  barrels: 0
-  towers: 0
-  wind: 9
+  parks: 1
+  barrels: 20
+  towers: 8
+  wind: 17
+-
+  rivers: 2
+  parks: 2
+  barrels: 8
+  towers: 3
+  wind: 18
 -
   rivers: 0
   parks: 3
   barrels: 20
   towers: 15
-  wind: 10
+  wind: 19
